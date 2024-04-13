@@ -3,15 +3,15 @@
 #include <stdlib.h>
 
 typedef struct {
-   char nombre[50];
-   int edad;
-   char sintoma[50];
+  char nombre[50];
+  int edad;
+  char sintoma[50];
 } Paciente;
 
 typedef struct {
-   int num_llegada;
-   char prioridad;
-   Paciente *paciente;
+  int num_llegada;
+  char prioridad;
+  Paciente *paciente;
 } Atencion;
 
 // Función para limpiar la pantalla
@@ -39,15 +39,19 @@ void mostrarMenuPrincipal() {
 }
 
 void registrar_paciente(List *pacientes) {
-  Atencion *nuevo_paciente = malloc(sizeof(Atencion)); // Asignar memoria para la estructura Atencion
-  nuevo_paciente->paciente = malloc(sizeof(Paciente)); // Asignar memoria para la estructura Paciente dentro de Atencion
+  Atencion *nuevo_paciente =
+      malloc(sizeof(Atencion)); // Asignar memoria para la estructura Atencion
+  nuevo_paciente->paciente =
+      malloc(sizeof(Paciente)); // Asignar memoria para la estructura Paciente
+                                // dentro de Atencion
   printf("Registra nuevo paciente\n");
   printf("Nombre del paciente: ");
   scanf("%s", nuevo_paciente->paciente->nombre); // Leer el nombre del paciente
   printf("Edad del paciente: ");
   scanf("%d", &nuevo_paciente->paciente->edad); // Leer la edad del paciente
   printf("Síntoma del paciente: ");
-  scanf("%s", nuevo_paciente->paciente->sintoma); // Leer el síntoma del paciente
+  scanf("%s",
+        nuevo_paciente->paciente->sintoma); // Leer el síntoma del paciente
 
   // Agregar el nuevo paciente a la lista de espera
   list_pushBack(pacientes, nuevo_paciente);
@@ -63,7 +67,8 @@ void mostrar_lista_pacientes(List *pacientes) {
 
 int main() {
   char opcion;
-  List *pacientes = list_create(); // puedes usar una lista para gestionar los pacientes
+  List *pacientes =
+      list_create(); // puedes usar una lista para gestionar los pacientes
 
   do {
     mostrarMenuPrincipal();
