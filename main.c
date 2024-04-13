@@ -1,6 +1,7 @@
 #include "tdas/list.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 typedef struct {
   char nombre[50];
@@ -10,7 +11,7 @@ typedef struct {
 
 typedef struct {
   int num_llegada;
-  char prioridad;
+  char prioridad[6];
   Paciente *paciente;
 } Atencion;
 
@@ -63,9 +64,10 @@ void registrar_paciente(List *pacientes) {
   printf("Síntoma del paciente: ");
   scanf("%49s", nuevo_paciente->paciente->sintoma); // Limitar la entrada a 49 caracteres
   printf("Prioridad del paciente: ");
-  scanf(" %c", &nuevo_paciente->prioridad); // Leer la prioridad del paciente
-  if (nuevo_paciente->prioridad == '\n') {
-    nuevo_paciente->prioridad = 'B';
+  scanf(" %5s", nuevo_paciente->prioridad); // Leer la prioridad del paciente
+  
+  if (*(nuevo_paciente->prioridad) == '\n') {
+    strcpy(nuevo_paciente->prioridad, "Baja");
   }
 
   // Agregar el nuevo paciente a la lista de espera
@@ -93,7 +95,7 @@ void mostrar_lista_pacientes(List *pacientes) {
       printf("Nombre: %s\n", paciente->nombre);
       printf("Edad: %d\n", paciente->edad);
       printf("Síntoma: %s\n", paciente->sintoma);
-      printf("Prioridad: %c\n", atencion->prioridad);
+      printf("Prioridad: %s\n", atencion->prioridad);
       printf("------------------------------------\n");
 
       current_node = current_node->next;
