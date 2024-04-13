@@ -14,6 +14,8 @@ typedef struct {
   Paciente *paciente;
 } Atencion;
 
+// lol
+
 // Función para limpiar la pantalla
 void limpiarPantalla() { system("clear"); }
 
