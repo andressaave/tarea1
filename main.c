@@ -14,7 +14,6 @@ typedef struct {
   Paciente *paciente;
 } Atencion;
 
-// lol
 
 // Función para limpiar la pantalla
 void limpiarPantalla() { system("clear"); }
@@ -41,19 +40,33 @@ void mostrarMenuPrincipal() {
 }
 
 void registrar_paciente(List *pacientes) {
-  Atencion *nuevo_paciente =
-      malloc(sizeof(Atencion)); // Asignar memoria para la estructura Atencion
-  nuevo_paciente->paciente =
-      malloc(sizeof(Paciente)); // Asignar memoria para la estructura Paciente
-                                // dentro de Atencion
+  static int numero_llegada = 0;
+  // Incrementar el contador global para el número de llegada
+  numero_llegada++;
+
+  // Asignar memoria para la estructura Atencion
+  Atencion *nuevo_paciente = malloc(sizeof(Atencion));
+  
+
+  // Asignar memoria para la estructura Paciente dentro de Atencion
+  nuevo_paciente->paciente = malloc(sizeof(Paciente));
+  
+
+  // Asignar el número de llegada al nuevo paciente
+  nuevo_paciente->num_llegada = numero_llegada;
+
   printf("Registra nuevo paciente\n");
   printf("Nombre del paciente: ");
-  scanf("%s", nuevo_paciente->paciente->nombre); // Leer el nombre del paciente
+  scanf("%49s", nuevo_paciente->paciente->nombre); // Limitar la entrada a 49 caracteres
   printf("Edad del paciente: ");
   scanf("%d", &nuevo_paciente->paciente->edad); // Leer la edad del paciente
   printf("Síntoma del paciente: ");
-  scanf("%s",
-        nuevo_paciente->paciente->sintoma); // Leer el síntoma del paciente
+  scanf("%49s", nuevo_paciente->paciente->sintoma); // Limitar la entrada a 49 caracteres
+  printf("Prioridad del paciente: ");
+  scanf(" %c", &nuevo_paciente->prioridad); // Leer la prioridad del paciente
+  if (nuevo_paciente->prioridad == '\n') {
+    nuevo_paciente->prioridad = 'B';
+  }
 
   // Agregar el nuevo paciente a la lista de espera
   list_pushBack(pacientes, nuevo_paciente);
@@ -65,6 +78,28 @@ void mostrar_lista_pacientes(List *pacientes) {
   // Mostrar pacientes en la cola de espera
   printf("Pacientes en espera: \n");
   // Aquí implementarías la lógica para recorrer y mostrar los pacientes
+  printf("Pacientes en espera: \n");
+
+  if (pacientes == NULL || pacientes->head == NULL) {
+      printf("No hay pacientes en espera.\n");
+      return;
+  }
+
+  struct Node *current_node = pacientes->head; // Cambiado a head en lugar de current
+  while (current_node != NULL) {
+      Atencion *atencion = (Atencion *)current_node->data;
+      Paciente *paciente = atencion->paciente;
+      printf("Número de llegada: %d\n", atencion->num_llegada);
+      printf("Nombre: %s\n", paciente->nombre);
+      printf("Edad: %d\n", paciente->edad);
+      printf("Síntoma: %s\n", paciente->sintoma);
+      printf("Prioridad: %c\n", atencion->prioridad);
+      printf("------------------------------------\n");
+
+      current_node = current_node->next;
+  }
+
+  printf("Fin de la lista de pacientes.\n");
 }
 
 int main() {
