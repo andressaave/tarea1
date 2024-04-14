@@ -40,12 +40,7 @@ void mostrarMenuPrincipal() {
   puts("6) Salir");
 }
 void asignar_prioridad(List *pacientes) {
-    // Verificar si hay pacientes en espera
-    if (pacientes == NULL || pacientes->head == NULL) {
-        printf("No hay pacientes en espera.\n");
-        return;
-    }
-
+    
     int num_llegada;
     char prioridad[6];
 
@@ -56,16 +51,16 @@ void asignar_prioridad(List *pacientes) {
     scanf("%s", prioridad);
 
     // Buscar al paciente por su número de llegada en la lista
-    struct Node *current_node = pacientes->head;
+    void *current_node = list_first(pacientes);
     while (current_node != NULL) {
-        Atencion *atencion = (Atencion *)current_node->data;
+        Atencion *atencion = (Atencion *)current_node;
         if (atencion->num_llegada == num_llegada) {
             // Actualizar la prioridad del paciente
             strcpy(atencion->prioridad, prioridad);
             printf("Prioridad asignada correctamente al paciente %d.\n", num_llegada);
             return;
         }
-        current_node = current_node->next;
+        current_node = list_next(current_node);
     }
 
     // Si no se encuentra al paciente con el número de llegada especificado
@@ -102,12 +97,7 @@ void registrar_paciente(List *pacientes) {
   printf("Paciente registrado con éxito.\n");
 }
 void atender_siguiente_paciente(List *pacientes) {
-  // Verificar si hay pacientes en espera
-  if (pacientes == NULL || pacientes->head == NULL) {
-    printf("No hay pacientes en espera para atender.\n");
-    return;
-  }
-
+  
   // Obtener el primer paciente de la lista
   Atencion *paciente_a_atender = list_popFront(pacientes);
 
@@ -129,17 +119,11 @@ void atender_siguiente_paciente(List *pacientes) {
 void mostrar_lista_pacientes(List *pacientes) {
   // Mostrar pacientes en la cola de espera
   printf("Pacientes en espera: \n");
-  // Aquí implementarías la lógica para recorrer y mostrar los pacientes
-  printf("Pacientes en espera: \n");
+  
+  void *current_node = list_first(pacientes); // Cambiado a head en lugar de current
 
-  if (pacientes == NULL || pacientes->head == NULL) {
-      printf("No hay pacientes en espera.\n");
-      return;
-  }
-
-  struct Node *current_node = pacientes->head; // Cambiado a head en lugar de current
   while (current_node != NULL) {
-      Atencion *atencion = (Atencion *)current_node->data;
+      Atencion *atencion = (Atencion *)current_node;
       Paciente *paciente = atencion->paciente;
       printf("Número de llegada: %d\n", atencion->num_llegada);
       printf("Nombre: %s\n", paciente->nombre);
@@ -148,7 +132,7 @@ void mostrar_lista_pacientes(List *pacientes) {
       printf("Prioridad: %s\n", atencion->prioridad);
       printf("------------------------------------\n");
 
-      current_node = current_node->next;
+      current_node = list_next(current_node);
   }
 
   printf("Fin de la lista de pacientes.\n");
@@ -179,19 +163,19 @@ void mostrar_pacientes_por_prioridad(List *pacientes) {
     List *pacientes_ordenados = list_create();
 
     // Iterar sobre la lista de pacientes y agregarlos ordenadamente a la lista ordenada
-    struct Node *current_node = pacientes->head;
+    void *current_node = list_first(pacientes);
     while (current_node != NULL) {
-        Atencion *atencion = (Atencion *)current_node->data;
+        Atencion *atencion = (Atencion *)current_node;
         // Insertar el paciente actual en la lista ordenada
         list_sortedInsert(pacientes_ordenados, atencion, comparar_prioridad);
-        current_node = current_node->next;
+        current_node = list_next(current_node);
     }
 
     // Mostrar la lista ordenada de pacientes
     printf("Pacientes ordenados por prioridad y número de llegada:\n");
     current_node = list_first(pacientes_ordenados);
     while (current_node != NULL) {
-        Atencion *atencion = (Atencion *)current_node->data;
+        Atencion *atencion = (Atencion *)current_node;
         Paciente *paciente = atencion->paciente;
         printf("Número de llegada: %d\n", atencion->num_llegada);
         printf("Nombre: %s\n", paciente->nombre);
