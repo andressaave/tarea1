@@ -41,12 +41,12 @@ void mostrarMenuPrincipal() {
 }
 void asignar_prioridad(List *pacientes) {
     
-    int num_llegada;
+    char nombres[50];
     char prioridad[6];
 
     // Pedir al usuario el número de llegada del paciente y la prioridad deseada
-    printf("Ingrese el número de llegada del paciente: ");
-    scanf("%d", &num_llegada);
+    printf("Ingrese nombre del paciente ");
+    scanf("%s", nombres);
     printf("Ingrese la prioridad deseada (Baja, Media o Alta): ");
     scanf("%s", prioridad);
 
@@ -54,17 +54,17 @@ void asignar_prioridad(List *pacientes) {
     void *current_node = list_first(pacientes);
     while (current_node != NULL) {
         Atencion *atencion = (Atencion *)current_node;
-        if (atencion->num_llegada == num_llegada) {
+        if (strcmp(atencion->paciente->nombre, nombres) == 0) {
             // Actualizar la prioridad del paciente
             strcpy(atencion->prioridad, prioridad);
-            printf("Prioridad asignada correctamente al paciente %d.\n", num_llegada);
+            printf("Prioridad asignada correctamente al paciente %s.\n", nombres);
             return;
         }
         current_node = list_next(current_node);
     }
 
     // Si no se encuentra al paciente con el número de llegada especificado
-    printf("No se encontró al paciente con el número de llegada %d.\n", num_llegada);
+    printf("No se encontró al paciente con el nombre %s.\n", nombres);
 }
 
 void registrar_paciente(List *pacientes) {
@@ -73,11 +73,8 @@ void registrar_paciente(List *pacientes) {
   numero_llegada++;
 
   // Asignar memoria para la estructura Atencion
-  Atencion *nuevo_paciente = malloc(sizeof(Atencion));
-  
-
-  // Asignar memoria para la estructura Paciente dentro de Atencion
-  nuevo_paciente->paciente = malloc(sizeof(Paciente));
+  Atencion *nuevo_paciente =(Atencion*)malloc(sizeof(Atencion));
+  nuevo_paciente->paciente =(Paciente*)malloc(sizeof(Paciente));
   
 
   // Asignar el número de llegada al nuevo paciente
@@ -93,6 +90,8 @@ void registrar_paciente(List *pacientes) {
 
   // Agregar el nuevo paciente a la lista de espera
   list_pushBack(pacientes, nuevo_paciente);
+
+  strcpy(nuevo_paciente->prioridad,"baja");
 
   printf("Paciente registrado con éxito.\n");
 }
@@ -116,27 +115,6 @@ void atender_siguiente_paciente(List *pacientes) {
   printf("Paciente atendido con éxito.\n");
 }
 
-void mostrar_lista_pacientes(List *pacientes) {
-  // Mostrar pacientes en la cola de espera
-  printf("Pacientes en espera: \n");
-  
-  void *current_node = list_first(pacientes); // Cambiado a head en lugar de current
-
-  while (current_node != NULL) {
-      Atencion *atencion = (Atencion *)current_node;
-      Paciente *paciente = atencion->paciente;
-      printf("Número de llegada: %d\n", atencion->num_llegada);
-      printf("Nombre: %s\n", paciente->nombre);
-      printf("Edad: %d\n", paciente->edad);
-      printf("Síntoma: %s\n", paciente->sintoma);
-      printf("Prioridad: %s\n", atencion->prioridad);
-      printf("------------------------------------\n");
-
-      current_node = list_next(current_node);
-  }
-
-  printf("Fin de la lista de pacientes.\n");
-}
 int comparar_prioridad(void *data1, void *data2) {
     Atencion *atencion1 = (Atencion *)data1;
     Atencion *atencion2 = (Atencion *)data2;
@@ -157,37 +135,69 @@ int comparar_prioridad(void *data1, void *data2) {
     }
 }
 
+void mostrar_lista_pacientes(List *pacientes) {
+  // Crear una nueva lista temporal para almacenar los pacientes ordenados
+  List *pacientes_ordenados = list_create();
+
+  // Iterar sobre la lista de pacientes y agregarlos ordenadamente a la lista temporal
+  void *current_node = list_first(pacientes);
+  while (current_node != NULL) {
+      Atencion *atencion = (Atencion *)current_node;
+      // Insertar el paciente actual en la lista ordenada temporal
+      list_sortedInsert(pacientes_ordenados, atencion, comparar_prioridad);
+      current_node = list_next(current_node);
+  }
+
+  // Copiar los pacientes ordenados de la lista temporal a la lista original
+  list_clean(pacientes); // Limpiar la lista original para evitar duplicados
+  current_node = list_first(pacientes_ordenados);
+  while (current_node != NULL) {
+      Atencion *atencion = (Atencion *)current_node;
+      list_pushBack(pacientes, atencion); // Insertar el paciente en la lista original
+      current_node = list_next(current_node);
+  }
+
+  // Mostrar la lista ordenada de pacientes
+  printf("Pacientes ordenados por prioridad:\n");
+  current_node = list_first(pacientes);
+  while (current_node != NULL) {
+      Atencion *atencion = (Atencion *)current_node;
+      Paciente *paciente = atencion->paciente;
+
+      printf("Nombre: %s\n", paciente->nombre);
+      printf("Edad: %d\n", paciente->edad);
+      printf("Síntoma: %s\n", paciente->sintoma);
+      printf("Prioridad: %s\n", atencion->prioridad);
+      printf("------------------------------------\n");
+      current_node = list_next(current_node);
+  }
+
+  // Liberar la memoria utilizada por la lista temporal de pacientes ordenados
+  list_clean(pacientes_ordenados);
+  free(pacientes_ordenados);
+}
+
 // Función para mostrar pacientes ordenados por prioridad y número de llegada
 void mostrar_pacientes_por_prioridad(List *pacientes) {
-    // Crear una nueva lista para almacenar los pacientes ordenados por prioridad y número de llegada
-    List *pacientes_ordenados = list_create();
+  char priori[6];
+  void *current = list_first(pacientes);
 
-    // Iterar sobre la lista de pacientes y agregarlos ordenadamente a la lista ordenada
-    void *current_node = list_first(pacientes);
-    while (current_node != NULL) {
-        Atencion *atencion = (Atencion *)current_node;
-        // Insertar el paciente actual en la lista ordenada
-        list_sortedInsert(pacientes_ordenados, atencion, comparar_prioridad);
-        current_node = list_next(current_node);
-    }
+  printf("Ingrese la prioridad deseada (Baja, Media o Alta):");
+  scanf("%s", priori);
 
-    // Mostrar la lista ordenada de pacientes
-    printf("Pacientes ordenados por prioridad y número de llegada:\n");
-    current_node = list_first(pacientes_ordenados);
-    while (current_node != NULL) {
-        Atencion *atencion = (Atencion *)current_node;
-        Paciente *paciente = atencion->paciente;
-        printf("Número de llegada: %d\n", atencion->num_llegada);
+  while(current != NULL)
+    {
+      Atencion *atencion = (Atencion *)current;
+      Paciente *paciente = atencion->paciente;
+      if(strcmp(atencion->prioridad, priori) == 0){
         printf("Nombre: %s\n", paciente->nombre);
         printf("Edad: %d\n", paciente->edad);
         printf("Síntoma: %s\n", paciente->sintoma);
-        printf("Prioridad: %s\n", atencion->prioridad);
         printf("------------------------------------\n");
-        current_node = list_next(pacientes_ordenados);
+      }
+      current = list_next(current);
+    
     }
-
-    // Liberar la memoria utilizada por la lista de pacientes ordenados
-    list_clean(pacientes_ordenados);
 }
 
 int main() {
@@ -207,7 +217,7 @@ int main() {
       break;
     case '2':
       // Lógica para asignar prioridad
-      registrar_paciente(pacientes);
+      asignar_prioridad(pacientes);
       break;
     case '3':
       mostrar_lista_pacientes(pacientes);
