@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 typedef struct {
   char nombre[50];
@@ -10,7 +11,7 @@ typedef struct {
 } Paciente;
 
 typedef struct {
-  int num_llegada;
+  time_t H_llegada;
   char prioridad[6];
   Paciente *paciente;
 } Atencion;
@@ -68,13 +69,12 @@ void asignar_prioridad(List *pacientes) {
 }
 
 void registrar_paciente(List *pacientes) {
-  static int numero_llegada = 0;
-  numero_llegada++;
+  
   // Asignar memoria para la nueva estructura de paciente
   Atencion *nuevo_paciente = (Atencion *)malloc(sizeof(Atencion));
   nuevo_paciente->paciente = (Paciente *)malloc(sizeof(Paciente));
   // Asignar el número de llegada al nuevo paciente
-  nuevo_paciente->num_llegada = numero_llegada;
+  time(&nuevo_paciente->H_llegada);
   printf("Registrar nuevo paciente\n");
   printf("Nombre del paciente: ");
   scanf("%49s", nuevo_paciente->paciente->nombre); // Limitar la entrada a 49 caracteres
@@ -94,9 +94,14 @@ void atender_siguiente_paciente(List *pacientes) {
   // Obtener el primer paciente de la lista
   Atencion *paciente_a_atender = list_popFront(pacientes);
 
-  // Mostrar información del paciente atendido
+  // Convertir el tiempo de llegada a una estructura tm
+  struct tm *tm_info = localtime(&paciente_a_atender->H_llegada);
+
+  // Imprimir la hora del paciente atendido
   printf("Atendiendo al siguiente paciente:\n");
-  printf("Número de llegada: %d\n", paciente_a_atender->num_llegada);
+  printf("Hora de llegada: %02d:%02d\n", tm_info->tm_hour, tm_info->tm_min);
+
+  // Imprimir el resto de la información del paciente atendido
   printf("Nombre: %s\n", paciente_a_atender->paciente->nombre);
   printf("Edad: %d\n", paciente_a_atender->paciente->edad);
   printf("Síntoma: %s\n", paciente_a_atender->paciente->sintoma);
@@ -113,19 +118,38 @@ int comparar_prioridad(void *data1, void *data2) {
     Atencion *atencion1 = (Atencion *)data1;
     Atencion *atencion2 = (Atencion *)data2;
 
-    // Primero comparamos las prioridades
-    int comparacion_prioridad = strcmp(atencion1->prioridad, atencion2->prioridad);
-    if (comparacion_prioridad != 0) {
-        return comparacion_prioridad;
+    // Asignar valores numéricos a las prioridades
+    int prioridad1, prioridad2;
+    if (strcmp(atencion1->prioridad, "Alta") == 0) {
+        prioridad1 = 3;
+    } else if (strcmp(atencion1->prioridad, "Media") == 0) {
+        prioridad1 = 2;
+    } else {
+        prioridad1 = 1; // Si no es Alta ni Media, asumimos que es Baja
     }
 
-    // Si las prioridades son iguales, comparamos los números de llegada
-    if (atencion1->num_llegada < atencion2->num_llegada) {
+    if (strcmp(atencion2->prioridad, "Alta") == 0) {
+        prioridad2 = 3;
+    } else if (strcmp(atencion2->prioridad, "Media") == 0) {
+        prioridad2 = 2;
+    } else {
+        prioridad2 = 1; // Si no es Alta ni Media, asumimos que es Baja
+    }
+
+    // Comparamos las prioridades numéricas
+    if (prioridad1 > prioridad2) {
         return -1;
-    } else if (atencion1->num_llegada > atencion2->num_llegada) {
+    } else if (prioridad1 < prioridad2) {
         return 1;
     } else {
-        return 0;
+      // Si las prioridades son iguales, comparar los tiempos de llegada
+      if (difftime(atencion1->H_llegada, atencion2->H_llegada) > 0) {
+          return -1;
+      } else if (difftime(atencion1->H_llegada, atencion2->H_llegada) < 0) {
+          return 1;
+      } else {
+          return 0;
+      }
     }
 }
 
@@ -189,7 +213,7 @@ void mostrar_pacientes_por_prioridad(List *pacientes) {
         printf("Síntoma: %s\n", paciente->sintoma);
         printf("------------------------------------\n");
       }
-      current = list_next(current);
+      current = list_next(pacientes);
     
     }
 }
