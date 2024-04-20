@@ -114,9 +114,9 @@ void atender_siguiente_paciente(List *pacientes) {
   printf("Paciente atendido con éxito.\n");
 }
 
-int comparar_prioridad(void *data1, void *data2) {
-    Atencion *atencion1 = (Atencion *)data1;
-    Atencion *atencion2 = (Atencion *)data2;
+int comparar_prioridad(const void *a, const void *b) {
+    Atencion *atencion1 = (Atencion *)a;
+    Atencion *atencion2 = (Atencion *)b;
 
     // Asignar valores numéricos a las prioridades
     int prioridad1, prioridad2;
@@ -125,72 +125,53 @@ int comparar_prioridad(void *data1, void *data2) {
     } else if (strcmp(atencion1->prioridad, "Medio") == 0) {
         prioridad1 = 2;
     } else {
-        prioridad1 = 1; // Si no es Alta ni Media, asumimos que es Baja
+        prioridad1 = 1; // Baja por defecto
     }
-
     if (strcmp(atencion2->prioridad, "Alto") == 0) {
         prioridad2 = 3;
     } else if (strcmp(atencion2->prioridad, "Medio") == 0) {
         prioridad2 = 2;
     } else {
-        prioridad2 = 1; // Si no es Alta ni Media, asumimos que es Baja
+        prioridad2 = 1; // Baja por defecto
     }
-
-    // Comparamos las prioridades numéricas
+    // Comparar prioridades
     if (prioridad1 > prioridad2) {
-        return -1;
+        return -1; // atencion1 tiene mayor prioridad
     } else if (prioridad1 < prioridad2) {
-        return 1;
+        return 1; // atencion2 tiene mayor prioridad
     } else {
-      // Si las prioridades son iguales, comparar los tiempos de llegada
-      if (difftime(atencion1->H_llegada, atencion2->H_llegada) < 0) {
-          return -1;
-      } else if (difftime(atencion1->H_llegada, atencion2->H_llegada) > 0) {
-          return 1;
-      } else {
-          return 0;
-      }
+        // Si las prioridades son iguales, comparar por tiempo de llegada
+        if (difftime(atencion1->H_llegada, atencion2->H_llegada) < 0) {
+            return -1; // atencion1 llegó antes que atencion2
+        } else if (difftime(atencion1->H_llegada, atencion2->H_llegada) > 0) {
+            return 1; // atencion2 llegó antes que atencion1
+        } else {
+            return 0; // Ambos tienen la misma prioridad y tiempo de llegada
+        }
     }
 }
 
-void copiar_lista_ordenada(List *pacientes_ordenados, List *pacientes) {
-    // Limpiar la lista original antes de la copia para evitar duplicados
-    list_clean(pacientes);
-    // Copiar los elementos de la lista ordenada a la lista original
-    void *current_node = list_first(pacientes_ordenados);
-    while (current_node != NULL) {
-        Atencion *atencion = (Atencion *)current_node;
-        list_pushBack(pacientes, atencion); // Copiar el elemento a la lista original
-        current_node = list_next(pacientes_ordenados);
-    }
-}
+void mostrar_lista_pacientes(List *pacientes,size_t talla) {
 
-void mostrar_lista_pacientes(List *pacientes) {
-  List *pacientes_ordenados = list_create();
-  void *current_node = list_first(pacientes);
-  while (current_node != NULL) {
-      Atencion *atencion = (Atencion *)current_node;
-      list_sortedInsert(pacientes_ordenados, atencion, comparar_prioridad);
-      current_node = list_next(pacientes);
-  }
-
+  qsort(pacientes, talla, sizeof(Atencion *), comparar_prioridad);
+  
   // Mostrar la lista ordenada de pacientes
   printf("Pacientes ordenados por prioridad y tiempo de llegada:\n");
-  void *curr_node_ordenado = list_first(pacientes_ordenados);
+  void *curr_node_ordenado = list_first(pacientes);
   while (curr_node_ordenado != NULL) {
       Atencion *atencion = (Atencion *)curr_node_ordenado;
       Paciente *paciente = atencion->paciente;
       // Mostrar la hora de llegada
       struct tm *tm_info = localtime(&atencion->H_llegada);
-      printf("Hora de llegada: %02d:%02d\n", tm_info->tm_hour, tm_info->tm_min);
+      printf("Hora de llegada: %02d:%02d\n", tm_info->tm_hour, tm_info->tm_min); // Muestra correctamente la hora y los minutos
       printf("Nombre: %s\n", paciente->nombre);
       printf("Edad: %d\n", paciente->edad);
       printf("Síntoma: %s\n", paciente->sintoma);
       printf("Prioridad: %s\n", atencion->prioridad);
       printf("------------------------------------\n");
-      curr_node_ordenado = list_next(pacientes_ordenados);
+      curr_node_ordenado = list_next(pacientes);
   }
-  copiar_lista_ordenada(pacientes_ordenados, pacientes);
+  
 }
 
 // Función para mostrar pacientes ordenados por prioridad y número de llegada
@@ -218,6 +199,7 @@ void mostrar_pacientes_por_prioridad(List *pacientes) {
 
 int main() {
   char opcion;
+  size_t talla = 0;
   List *pacientes =
       list_create(); // puedes usar una lista para gestionar los pacientes
 
@@ -230,13 +212,14 @@ int main() {
     switch (opcion) {
     case '1':
       registrar_paciente(pacientes);
+      talla++;
       break;
     case '2':
       // Lógica para asignar prioridad
       asignar_prioridad(pacientes);
       break;
     case '3':
-      mostrar_lista_pacientes(pacientes);
+      mostrar_lista_pacientes(pacientes,talla);
       break;
     case '4':
       atender_siguiente_paciente(pacientes);
