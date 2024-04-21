@@ -43,7 +43,7 @@ void mostrar_lista_pacientes(List *pacientes, size_t talla);
     // funcion que muestra la lista ordenado de prioridad Alto a Bajo, donde usar un arreglo para poder ordenarlo con un qsort.
 
 void mostrar_pacientes_por_prioridad(List *pacientes);
-    // funcion que se le ingresa la prioridad que desea ver, mostrando todos los pacientes que tiene esa prioridad.
+    // funcion que se le ingresa la prioridad que desea para mostrando todos los pacientes que tiene esa prioridad, se tiene que usar despues de usar la funcion mostrar_lista_pacientes para mostralos en el orden de llegada.
 
 ````
 <br>
