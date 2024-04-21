@@ -55,6 +55,7 @@ void mostrar_pacientes_por_prioridad(List *pacientes);
  int comparar_pacientes_prioridad(const void *a, const void *b)
 // contiene las condiciones de que ordene de Alto a Bajo, y por hora de llegada en el caso de que las prioridades coinciden.
 
+*-----funcion mostrar_lista_pacientes-----*
 // asigna memoria al array
 int size = talla;
   Atencion **array = (Atencion **)malloc(size * sizeof(Atencion *));
