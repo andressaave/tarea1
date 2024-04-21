@@ -41,18 +41,28 @@ void mostrarMenuPrincipal() {
   puts("6) Salir");
 }
 void asignar_prioridad(List *pacientes) {
-    
+    limpiarPantalla();
+  
     char nombres[50];
     char prioridad[6];
-
+  void *current_node = list_first(pacientes);
+  while (current_node != NULL) {
+    Atencion *atencion = (Atencion *)current_node;
+    printf("Nombre: %s\n", atencion->paciente->nombre);
+    printf("sintoma: %s\n", atencion->paciente->sintoma);
+    printf("prioridad: %s\n", atencion->prioridad);
+    printf("------------------------------------\n");
+    current_node = list_next(pacientes);
+    
+  }
     // Pedir al usuario el número de llegada del paciente y la prioridad deseada
-    printf("Ingrese nombre del paciente ");
+    printf("Ingrese nombre del paciente:");
     scanf("%s", nombres);
     printf("Ingrese la prioridad deseada (Bajo, Medio o Alto): ");
     scanf("%s", prioridad);
 
     // Buscar al paciente por su número de llegada en la lista
-    void *current_node = list_first(pacientes);
+    current_node = list_first(pacientes);
     while (current_node != NULL) {
         Atencion *atencion = (Atencion *)current_node;
         if (strcmp(atencion->paciente->nombre, nombres) == 0) {
@@ -69,7 +79,7 @@ void asignar_prioridad(List *pacientes) {
 }
 
 void registrar_paciente(List *pacientes) {
-  
+  limpiarPantalla();
   // Asignar memoria para la nueva estructura de paciente
   Atencion *nuevo_paciente = (Atencion *)malloc(sizeof(Atencion));
   nuevo_paciente->paciente = (Paciente *)malloc(sizeof(Paciente));
@@ -90,7 +100,7 @@ void registrar_paciente(List *pacientes) {
   printf("Paciente registrado con éxito.\n");
 }
 void atender_siguiente_paciente(List *pacientes) {
-  
+  limpiarPantalla();
   // Obtener el primer paciente de la lista
   Atencion *paciente_a_atender = list_popFront(pacientes);
 
@@ -154,7 +164,8 @@ int comparar_pacientes_prioridad(const void *a, const void *b) {
 
 
 void mostrar_lista_pacientes(List *pacientes,size_t talla) {
-
+  limpiarPantalla();
+  
   int size = talla;
   Atencion **array = (Atencion **)malloc(size * sizeof(Atencion *));
   if (array == NULL) {
@@ -210,6 +221,7 @@ void mostrar_lista_pacientes(List *pacientes,size_t talla) {
 
 // Función para mostrar pacientes ordenados por prioridad y número de llegada
 void mostrar_pacientes_por_prioridad(List *pacientes) {
+  limpiarPantalla();
   char priori[6];
   void *current = list_first(pacientes);
 
