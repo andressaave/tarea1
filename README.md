@@ -31,7 +31,7 @@ typedef struct {
  // Funciones auxiliares para la gestión del programa
 
 void asignar_prioridad(List *pacientes);
-     //funcion que muestra la prioridad de todos los pacientes para poder ingresar el nombre del paciente y cambiar su prioridad, tiene que ser exactamente el nombre.
+     //funcion que muestra la prioridad de todos los pacientes para poder ingresar el nombre del paciente y cambiar su prioridad, tiene que ser exactamente el nombre y las prioridades que se muestra en pantalla.
 
 void registrar_paciente(List *pacientes);
      // funcion que tiene intrucciones de que datos ingresar del paciente, en caso contrario puede causar errores.
